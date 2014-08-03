@@ -1,0 +1,16 @@
+## Texinfo
+*.aux
+*.cp
+*.fn
+*.ky
+*.log
+*.pg
+*.toc
+*.tp
+*.vr
+
+## Generated documentation
+*.pdf
+*.html
+*.info
+
