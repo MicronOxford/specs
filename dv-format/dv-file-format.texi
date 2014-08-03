@@ -1,0 +1,151 @@
+\input texinfo
+
+@setfilename dv-file-format.info
+@settitle DV specs
+
+@documentencoding UTF-8
+
+@copying
+Copyright (C) 2014 Carnë Draug / David Miguel Susano Pinto
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+@end quotation
+
+@end copying
+
+@titlepage
+@title DeltaVision file format
+@subtitle Specifications for the DV file format; a bastardized and proprietary version of MRC
+@author Carnë Draug / David Miguel Susano Pinto
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top DeltaVision file format
+
+This manual describes the DeltaVision (DV) file format to the best of public
+knowledge.  DV is a proprietary format with no official public specifications.
+This document is @emph{not} official and derives the specification from
+study of the original MRC file format, reverse engineering of DV files,
+and study of free software capable of handling DV files.
+
+@end ifnottex
+
+@node Intro
+@chapter Introduction
+
+@section History
+
+@section Known limitations
+
+Since it is based on the MRC file format, the DV format inherits all of its
+limitations, the most significant among them being:
+
+@itemize @bullet
+@item
+Limited to five wavelengths (although this can be mitigated in the extended
+header);
+
+@item
+Only one voxel size per file.  The implication of this is that each file
+should only have images from a single camera or from cameras with the same
+physical pixel size.  However, this seems to be mostly ignored by the OMX
+system.
+@end itemize
+
+In addition, by being a proprietary format with no public specification,
+reading and writing of DV files is only fully supported by SoftWoRx.  By
+being very similar to MRC, several libraries exist that are capable of
+handling the image data but only part of its metadata.  The end result is
+that programs relying only this format, such as the majority of SoftWoRx,
+are a major issue for the interoperability between processing steps.
+
+The bioformats project
+has @uref{http://www.openmicroscopy.org/site/support/bio-formats5/formats/deltavision.html, received specifications}
+for this format but is unable to share them.  They claim to have support for
+@uref{http://www.openmicroscopy.org/site/support/bio-formats5/formats/deltavision-metadata.html, all 52 fields}
+but these are the fields that they know exist.
+
+@chapter File specification
+
+@section Overview
+
+@section Magic Number
+
+A DV file can be identified by its 2 byte magic number, which is offsetted
+by 96 bytes with respect to the beginning of file.  The DV magic number is
+also used to identify the byte order within the file:
+
+@table @asis
+@item Big endian
+@samp{0xc0a0} or @samp{-24384} as signed short integer (16-bit).
+
+@item Little endian
+@samp{0xc0a0} or @samp{-16224} as signed short integer (16-bit).
+@end table
+
+
+@section Initial Header
+
+The initial header was inherited from the MRC and is mostly documented.  It
+has a fixed size of 1024 bytes, and defines most of the rawest image data
+details.  Most important, it defines the byte order, pixel size, image size,
+and start of the actual image data.  It also contains information to interpret
+the extended header.
+
+@section Extended Header
+
+The extended header is an optional section of the file.  It is defined in
+the initial header, the values of @samp{next} (bytes 93--96) and
+@samp{nspg} (bytes 89--92) defining its length, and layout.  This section
+is completely undocumented.
+
+@section Image Data
+
+
+The image data is in a single array, row-major, but upside-down, i.e., the
+first pixel value is the bottom left pixel of the image, followed by all the
+other pixel values on the image bottom row.  The pixels for the XY 2D images
+are stored contiguously, but their order, with respect to the other dimensions,
+is specified on the initial header.
+
+@section Sub-Resolution Image Data
+
+The sub-resolution image is an optional section.  It contains a smaller
+version of the image data, meant for faster display of thumbnails.
+
+@appendix DeltaVision Objective Lens
+
+@c We also have data on each lenses PN and Applied Precision's PN but they're
+@c not that important and the table is already too large. If we want those
+@c values, that would require a separate table for them.
+
+@multitable @columnfractions .06 .44 .16 .12 .12 .12
+@headitem ID
+@tab Description
+@tab Magnification
+@tab Focal length (mm)
+@tab Working distance (mm)
+@tab Type
+
+@c File is generated automatically
+@include dv-lenses.texi
+
+@end multitable
+
+
+@node Index
+@unnumbered Index
+@printindex cp
+
+@bye
