@@ -103,6 +103,21 @@ details.  Most important, it defines the byte order, pixel size, image size,
 and start of the actual image data.  It also contains information to interpret
 the extended header.
 
+@c As reported on ome-users mailing list:
+@c http://lists.openmicroscopy.org.uk/pipermail/ome-users/2016-October/006193.html
+
+@subsection Number of time points
+
+There are two methods to get the number of time points.  This has been
+complicated to allow high number of time points while maintaining backwards
+compatibility.
+
+Determine the image file type by reading the 16-bit integer at header
+byte 160.  If the image type is >= 100 then determine the number of
+time-points from the 32-bit integer at header byte 852.  If the image
+file type is < 100 then determine the number of time-points from the
+16-bit integer at header byte 180.
+
 @section Extended Header
 
 The extended header is an optional section of the file.  It is defined in
